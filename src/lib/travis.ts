@@ -1,6 +1,7 @@
 import { Context } from 'probot';
 import { WebhookPayloadWithRepository } from 'probot/lib/context';
 import fetch from 'node-fetch';
+import * as http from 'http';
 
 const travisAPI = {
   url: String(process.env.TRAVIS_API_URL),
@@ -29,9 +30,6 @@ export const getTravisBuildData = async (context: Context) => {
   const res = await fetch(`${url}/build/${buildId}`, { headers });
   const json = await res.json();
 
-  log.info('json');
-  log.info(json);
-
   return json;
 };
 
@@ -53,11 +51,42 @@ const getTravisBuildId = (
  * Make request to /job/log which has the logs
  * @param jobId Travis Build Job ID
  */
-export const getTravisJobLog = async (jobId: number) => {
-  const { url, headers } = travisAPI;
+export const getTravisJobLog = async (context: Context, jobId: number) => {
+  const { headers } = travisAPI;
 
-  const res = await fetch(`${url}/job/${jobId}/log`, { headers });
-  const json = await res.json();
+  const options = {
+    host: 'api.travis-ci.org',
+    path: `/job/${jobId}/log`,
+    headers,
+  };
+  let errorLog = '';
 
-  return json;
+  http
+    .get(options, function(resp) {
+      context.log.info(resp);
+      context.log.info('hi');
+      let respContent = '';
+      resp.on('data', function(data) {
+        context.log.info('data');
+        context.log.info(data.toString());
+        respContent += data.toString(); //data is a buffer instance
+      });
+      resp.on('end', function() {
+        context.log.info('END');
+        context.log.info(respContent);
+        errorLog = respContent;
+      });
+    })
+    .on('error', context.log.error);
+
+  return errorLog;
+  //   const res = await fetch(`${url}/job/${jobId}/log.txt`, { headers });
+  //   const text = await res.text();
+  //   context.log.info(text);
+  //     const indexFailStart = text.lastIndexOf('[0m[7m[1m[31m FAIL');
+  //     const indexFailEnd = text.lastIndexOf('[999D[K[1mTest Suites:');
+
+  //     const errorLog = text.slice(indexFailStart, indexFailEnd);
+
+  //   return errorLog;
 };

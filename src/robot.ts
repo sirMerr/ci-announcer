@@ -15,7 +15,6 @@ const robot = (robot: Robot) => {
     const { state } = payload;
 
     log.info('Status event triggered');
-    log.info(context);
 
     // Should only trigger if it's a PR AND the status is failing
     if (
