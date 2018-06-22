@@ -1,10 +1,21 @@
-// You can import your modules
-// const index = require('../index')
+import fetch from 'node-fetch';
+import { getTravisErrorLogs } from '../src/lib/travis';
+import { mockErrorLog } from './fixtures/errorLogs';
+import { mockLogWithFail } from './fixtures/logs';
 
-test('that we can run tests', () => {
-  // your real tests go here
-  expect(1 + 2 + 3).toBe(6);
+jest.mock('node-fetch');
+
+test('should fetch and return proper travis error logs', async () => {
+  const context = {
+    log: jest.fn(),
+  } as any;
+
+  context.log.info = jest.fn();
+
+  // @ts-ignore
+  fetch.mockImplementation(() => Promise.resolve(mockLogWithFail));
+
+  const errorLogs = await getTravisErrorLogs({ context, jobId: 1 });
+
+  expect(errorLogs.replace(/\s/g, '')).toBe(mockErrorLog.replace(/\s/g, ''));
 });
-
-// For more information about testing with Jest see:
-// https://facebook.github.io/jest/
