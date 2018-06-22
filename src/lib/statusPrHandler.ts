@@ -1,21 +1,5 @@
 import { Context } from 'probot';
-// import {LoggerWithTarget} from 'probot/lib/wrap-logger';
 import { getTravisBuildData, getTravisErrorLogs } from './travis';
-
-// interface EventInfo {
-// 	repo: string,
-// 	owner: string,
-// 	log: LoggerWithTarget | null,
-// 	sha: string
-// }
-
-// export let eventInfo: EventInfo = {
-// 	repo: '',
-// 	owner: '',
-// 	log: null,
-// 	sha: ''
-
-// }
 
 /**
  * Handler which will get the associated

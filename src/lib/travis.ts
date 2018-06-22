@@ -3,7 +3,7 @@ import { WebhookPayloadWithRepository } from 'probot/lib/context';
 import fetch from 'node-fetch';
 import * as util from 'util';
 
-// strip_ansi not proper module
+// strip_ansi not proper module so needs to be required
 const stripAnsi = require('strip-ansi');
 
 const travisAPI = {
@@ -149,11 +149,14 @@ export const getTravisErrorLogs = async ({
 };
 
 /**
- * Make the error log for display
+ * Make the error log for display.
+ *
+ * First log of the array of logs contains the starting
+ * delimiter and the last log the array contains the end one.
+ *
+ * It is possible to have only one log containing both.
  *
  * @param logs list of logs
- * @param start inclusive index of the logs
- * @param end inclusive index of the logs
  * @param stringStart inclusive index of a log part
  * @param stringEnd exclusive index of a log part
  *
@@ -166,9 +169,12 @@ const makeErrorLog = (
   let errorLog = '';
   const size = logs.length;
 
+  // The error is contained in a single log
   if (size === 1) {
     errorLog = logs[0].content.slice(stringStart, stringEnd);
   } else {
+    // The error is contained in multiple logs.
+    // Here we build the error log from the indexes given
     for (let i = 0; i < size; i++) {
       const log = logs[i];
       if (i === 0) {
@@ -181,8 +187,11 @@ const makeErrorLog = (
     }
   }
 
+  // Strip the built log of any ansi characters
   errorLog = stripAnsi(errorLog);
 
+  // Slice if the log is too big. It is possible to
+  // do this step in the while loop of getTravisErrorLogs
   if (errorLog.length > 400) {
     errorLog.slice(0, 400);
     errorLog += '\n...';
