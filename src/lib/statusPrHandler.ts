@@ -58,6 +58,13 @@ export const statusPrHandler = async ({
   });
 };
 
+/**
+ * Creates the issue body for sending
+ *
+ * @param errorLogs Formatted error logs
+ * @param sha       Commit id
+ * @param travisUrl Travis build url the user can go to
+ */
 const makeIssueBody = ({
   errorLogs,
   sha,

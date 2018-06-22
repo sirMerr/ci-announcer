@@ -75,24 +75,3 @@ export const mockLogWithNoFails = {
     ],
   }),
 };
-
-// // Normally should only happen if not using jest
-// export const mockLogWithNoFail = {
-//   json: () => ({
-//     content: '',
-//     log_parts: [
-//       {
-//         content:
-//           '\u001b[2K\u001b[1G\u001b[1myarn run v1.3.2\u001b[22m\r\n\u001b[2K\u001b[1G\u001b' +
-//           '[2m$ jest\u001b[22m\r\n\u001b[0m\u001b[7m\u001b[1m\u001b[31m this is a mock fail',
-//         final: false,
-//         number: 0,
-//       },
-//       {
-//         content: '\u001b[0m\u001b[7m\u001b[1m\u001b[31m c \u001b[1b[2m\u001b[0m\u001b[36mfail.test.js\u001b[39m\u001b[0m\u001b[2m:2:16)\u001b[2m\u001b[22m\r\n\r\n\u001b[999D\u001b[K\u001b[1mTest Suites: \u001b[22m\u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m, 1 total\r\n\u001b[1mTests:       \u001b[22m\u001b[1m\u001b[31m1 failed\u001b[39m\u001b[22m, 1 total\r\n\u001b[1mSnapshots:   \u001b[22m0 total\r\n\u001b[1mTime:\u001b[22m        1.347s\r\n\u001b[2mRan all test suites\u001b[22m\u001b[2m.\u001b[22m\r\n\u001b[2K\u001b[1G\u001b[31merror\u001b[39m Command failed with exit code 1.\r\n\u001b[2K\u001b[1G\u001b[34minfo\u001b[39m Visit \u001b[1mhttps://yarnpkg.com/en/docs/cli/run\u001b[22m for documentation about this command.\r\n\r\ntravis_time:end:112274d0:start=1529624983250771640,finish=1529624986585326794,duration=3334555154\r\u001b[0K\r\n\u001b[31;1mThe command "yarn test" exited with 1.\u001b[0m\r\n\r\nDone. Your build exited with 1.\r\n',
-//         final: true,
-//         number: 1,
-//       },
-//     ],
-//   }),
-// };

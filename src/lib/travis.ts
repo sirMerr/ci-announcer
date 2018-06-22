@@ -6,6 +6,7 @@ import * as util from 'util';
 // strip_ansi not proper module so needs to be required
 const stripAnsi = require('strip-ansi');
 
+// Options for fetch
 const travisAPI = {
   url: String(process.env.TRAVIS_API_URL),
   headers: {
@@ -92,10 +93,7 @@ export const getTravisErrorLogs = async ({
     const res = await fetch(`${url}/job/${jobId}/log`, { headers });
     const json = await res.json();
     const parts: Array<LogPart> = json.log_parts;
-    // 1
     const length = parts.length - 1;
-
-    // 0 === 1
 
     // No new data fetched
     if (lastIndex === length) {
@@ -109,7 +107,7 @@ export const getTravisErrorLogs = async ({
       if (!final) final = log.final;
 
       if (indexFailStart === -1) {
-        indexFailStart = log.content.lastIndexOf('[31m FAIL');
+        indexFailStart = log.content.lastIndexOf('\u001b[31m FAIL');
         // Find the first FAIL starting backwards from the initially
         // found FAIL index
         if (indexFailStart !== -1) {
@@ -146,6 +144,7 @@ export const getTravisErrorLogs = async ({
 
     lastIndex = parts[length].number;
 
+    // Wait until polling the api again
     sleep(3000);
   }
 
