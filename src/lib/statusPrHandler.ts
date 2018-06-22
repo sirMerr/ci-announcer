@@ -1,6 +1,6 @@
 import { Context } from 'probot';
 // import {LoggerWithTarget} from 'probot/lib/wrap-logger';
-import { getTravisBuildData, sendMessage } from './travis';
+import { getTravisBuildData, getTravisErrorLogs } from './travis';
 
 // interface EventInfo {
 // 	repo: string,
@@ -38,41 +38,48 @@ export const statusPrHandler = async ({
   const { log, payload, github } = context;
   const { sha } = payload;
   log.info('statusPrHandler');
-  // eventInfo = {log, owner, repo, sha};
-
-  //   const { github } = context;
-  //   log.info(sha,github,repo,owner);
 
   // Get the CI build data
   const buildData = await getTravisBuildData(context);
   const jobId = buildData.jobs[0].id;
 
-  // Get the CI build logs
-  await sendMessage({
-    owner,
-    repo,
+  // Get the CI error logs formatted
+  const errorLogs = await getTravisErrorLogs({
     context,
     jobId,
-    github,
+  });
+
+  const body = makeIssueBody({
+    errorLogs,
     sha,
     travisUrl: payload.target_url,
-    prNumber: buildData.pull_request_number,
   });
-  // const errorLogs = await getTravisJobLog(context, jobId);
 
-  // const body = makeIssueBody({
-  //   errorLogs,
-  //   sha,
-  //   travisUrl: payload.target_url,
-  // });
+  log.info(body);
 
-  // log.info(body);
+  await github.issues.createComment({
+    owner,
+    repo,
+    body,
+    number: buildData.pull_request_number,
+  });
 
-  // await github.issues.createComment({
-  //     owner,
-  //     repo,
-  //     body,
-  //     number: buildData.pull_request_number,
-  // });
   return;
+};
+
+const makeIssueBody = ({
+  errorLogs,
+  sha,
+  travisUrl,
+}: {
+  errorLogs: string;
+  sha: string;
+  travisUrl: string;
+}): string => {
+  return (
+    `The [TravisCI build](${travisUrl}) failed as of ${sha}\n` +
+    '<pre><code>' +
+    errorLogs +
+    '</code></pre>'
+  );
 };

@@ -1,7 +1,7 @@
 import { Context } from 'probot';
 import { WebhookPayloadWithRepository } from 'probot/lib/context';
-import { OctokitWithPagination } from 'probot/lib/github';
 import fetch from 'node-fetch';
+import * as util from 'util';
 
 // strip_ansi not proper module
 const stripAnsi = require('strip-ansi');
@@ -66,34 +66,23 @@ interface LogPart {
  * @param context
  * @param jobId Travis Build Job ID
  */
-export const sendMessage = ({
-  owner,
-  repo,
+export const getTravisErrorLogs = async ({
   context,
   jobId,
-  sha,
-  travisUrl,
-  github,
-  prNumber,
 }: {
-  owner: string;
-  repo: string;
   context: Context;
   jobId: number;
-  sha: string;
-  travisUrl: string;
-  github: OctokitWithPagination;
-  prNumber: number;
 }) => {
   const { url, headers } = travisAPI;
   let logParts: Array<LogPart> = [];
   let indexFailStart = -1;
   let indexFailStop = -1;
-  let partNumberStart = -1;
-  let partNumberStop = -1;
   let lastIndex = 0;
+  let final = false;
 
-  const pollData = async () => {
+  const sleep = util.promisify(setTimeout);
+
+  while ((indexFailStart === -1 && indexFailStop === -1) || final) {
     const res = await fetch(`${url}/job/${jobId}/log`, { headers });
     const json = await res.json();
 
@@ -105,17 +94,14 @@ export const sendMessage = ({
 
     // No new data fetched
     if (lastIndex === length) {
-      return;
+      continue;
     }
 
-    // i = 9
     for (let i = length; i > lastIndex; i--) {
       const log = parts[i];
-      context.log('i: ', i);
-      if (log.final) {
-        clearInterval(interval);
-      }
+      final = log.final;
 
+      context.log('i: ', i);
       context.log.info('log');
       context.log.info(log);
       context.log.info('indexFailStart for: ', indexFailStart);
@@ -127,7 +113,6 @@ export const sendMessage = ({
         // Find the first FAIL starting backwards from the initially
         // found FAIL index
         if (indexFailStart !== -1) {
-          partNumberStart = log.number;
           logParts.push(log);
 
           const lastIndexOfFail = () =>
@@ -136,7 +121,6 @@ export const sendMessage = ({
           while (lastIndexOfFail() !== -1) {
             context.log('lastIndexOfFail');
             indexFailStart = lastIndexOfFail();
-            partNumberStart = log.number;
             context.log('while indexFailStart', indexFailStart);
           }
         }
@@ -147,80 +131,26 @@ export const sendMessage = ({
           '\r\n\r\n\u001b[999D\u001b[K\u001b[1mTest Suites:'
         );
         context.log.info('indexFailStop: ', indexFailStop);
-        if (indexFailStop !== -1) partNumberStop = log.number;
       }
 
       if (indexFailStart !== -1 && indexFailStop !== -1) {
-        context.log.info('here');
-        clearInterval(interval);
-
-        context.log.info('partNumberStart', partNumberStart);
-        context.log.info('partNumberStop', partNumberStop);
-        context.log.info('indexFailStart', indexFailStart);
-        context.log.info('indexFailStop', indexFailStop);
-        context.log.info('logParts');
-        context.log.info(logParts);
-
-        // await new Promise(resolve => {
-        // 	const id = setInterval(() => {
-        // 		console.log();
-        // 		clearInterval(id)
-        // 	}, 500);
-        // 	resolve();
-        // })
-
-        // At this point, we have the element positions and indexes of our error logs
-        sendErrorLog(
-          logParts,
-          indexFailStart,
-          indexFailStop,
-          context,
-          sha,
-          travisUrl,
-          github,
-          owner,
-          repo,
-          prNumber
-        );
         break;
       }
 
       lastIndex = parts[length].number;
     }
-  };
 
-  const interval = setInterval(pollData, 5000);
-};
+    if (final) break;
 
-const sendErrorLog = async (
-  logParts: Array<LogPart>,
-  indexFailStart: number,
-  indexFailStop: number,
-  context: Context,
-  sha: string,
-  travisUrl: string,
-  github: OctokitWithPagination,
-  owner: string,
-  repo: string,
-  prNumber: number
-) => {
+    sleep(3000);
+  }
+
+  context.log.info(logParts);
   const errorLogs = makeErrorLog(logParts, indexFailStart, indexFailStop);
   context.log.info('makeErrorLogs:');
   context.log.info(errorLogs);
 
-  const body = makeIssueBody({
-    errorLogs,
-    sha,
-    travisUrl,
-  });
-  context.log.info(body);
-
-  await github.issues.createComment({
-    owner,
-    repo,
-    body,
-    number: prNumber,
-  });
+  return errorLogs;
 };
 
 /**
@@ -264,21 +194,4 @@ const makeErrorLog = (
   }
 
   return errorLog;
-};
-
-const makeIssueBody = ({
-  errorLogs,
-  sha,
-  travisUrl,
-}: {
-  errorLogs: string;
-  sha: string;
-  travisUrl: string;
-}): string => {
-  return (
-    `The [TravisCI build](${travisUrl}) failed as of ${sha}\n` +
-    '<pre><code>' +
-    errorLogs +
-    '</code></pre>'
-  );
 };
