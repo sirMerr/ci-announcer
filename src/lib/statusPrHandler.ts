@@ -26,7 +26,7 @@ export const statusPrHandler = async ({
   // Get the CI build data
   const buildData = await getTravisBuildData(context);
 
-  if (null) {
+  if (!buildData) {
     log.error('No build data found');
     return;
   }

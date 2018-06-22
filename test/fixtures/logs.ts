@@ -58,6 +58,24 @@ export const mockLogWithMultipleFails = {
   }),
 };
 
+export const mockLogWithNoFails = {
+  json: () => ({
+    content: '',
+    log_parts: [
+      {
+        content: 'This is not',
+        final: false,
+        number: 0,
+      },
+      {
+        content: 'The droid you are looking for',
+        final: true,
+        number: 1,
+      },
+    ],
+  }),
+};
+
 // // Normally should only happen if not using jest
 // export const mockLogWithNoFail = {
 //   json: () => ({

@@ -24,7 +24,6 @@ export const getTravisBuildData = async (
 ): Promise<null | { [key: string]: any }> => {
   const { log, payload } = context;
   const buildId = getTravisBuildId(payload);
-  console.log(buildId);
   log.info('BuildId', buildId);
 
   if (!buildId) return null;
@@ -89,11 +88,14 @@ export const getTravisErrorLogs = async ({
 
   // Continue while FAIL start and end delimiter are not found
   // or until there is no more data to read
-  while (true) {
+  while (!final) {
     const res = await fetch(`${url}/job/${jobId}/log`, { headers });
     const json = await res.json();
     const parts: Array<LogPart> = json.log_parts;
+    // 1
     const length = parts.length - 1;
+
+    // 0 === 1
 
     // No new data fetched
     if (lastIndex === length) {
@@ -104,7 +106,7 @@ export const getTravisErrorLogs = async ({
     // the delimiters. When a part contains one, push it
     for (let i = length; i >= lastIndex; i--) {
       const log = parts[i];
-      final = log.final;
+      if (!final) final = log.final;
 
       if (indexFailStart === -1) {
         indexFailStart = log.content.lastIndexOf('[31m FAIL');
@@ -136,6 +138,8 @@ export const getTravisErrorLogs = async ({
           logParts.push(log);
         }
       }
+
+      if (indexFailStart !== -1 && indexFailStop !== -1) break;
     }
 
     if (final || (indexFailStart !== -1 && indexFailStop !== -1)) break;
@@ -168,8 +172,11 @@ const makeErrorLog = (
   stringStart: number,
   stringEnd: number
 ): string => {
-  let errorLog = '';
   const size = logs.length;
+
+  if (size <= 0) return 'No logs found, please check your build above';
+
+  let errorLog = '';
 
   // The error is contained in a single log
   if (size === 1) {
