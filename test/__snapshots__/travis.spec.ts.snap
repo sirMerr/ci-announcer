@@ -1,0 +1,25 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`will run travis fetches and manipulation should fetch logs with failure that has logs between it and return proper travis error logs 1`] = `
+" FAIL  ./fail.test.js
+  ✕ mistakes 1 + 2 to equal 4 (13ms)
+
+  ● mistakes 1 + 2 to equal 4
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 4
+    Received: 3
+
+      1 | test('mistakes 1 + 2 to equal 4', () => {
+    > 2 | 	expect(1 + 2).toBe(4);
+        | 	              ^
+      3 | });
+      4 | 
+
+      at Object.<anonymous>.test (fail.test.js:2:16)"
+`;
+
+exports[`will run travis fetches and manipulation should fetch logs with multiple fails and return proper travis error logs 1`] = `" FAIL b[2mfail.test.js:2:16)"`;
+
+exports[`will run travis fetches and manipulation should fetch travis build logs 1`] = `"dataMock"`;

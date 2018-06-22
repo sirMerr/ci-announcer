@@ -12,6 +12,6 @@ export const mockErrorLog = ` FAIL  ./fail.test.js
     > 2 | 	expect(1 + 2).toBe(4);
         | 	              ^
       3 | });
-      4 | 
+      4 |
 
       at Object.<anonymous>.test (fail.test.js:2:16)`;
