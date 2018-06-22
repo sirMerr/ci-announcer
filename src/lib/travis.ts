@@ -73,55 +73,52 @@ export const getTravisErrorLogs = async ({
   context: Context;
   jobId: number;
 }) => {
+  context.log.info('getTravisErrorLogs');
+
   const { url, headers } = travisAPI;
   let logParts: Array<LogPart> = [];
   let indexFailStart = -1;
   let indexFailStop = -1;
+  let partNumberFailStart;
   let lastIndex = 0;
   let final = false;
 
   const sleep = util.promisify(setTimeout);
 
-  while ((indexFailStart === -1 && indexFailStop === -1) || final) {
+  // Continue while FAIL start and end delimiter are not found
+  // or until there is no more data to read
+  while (true) {
     const res = await fetch(`${url}/job/${jobId}/log`, { headers });
     const json = await res.json();
-
     const parts: Array<LogPart> = json.log_parts;
     const length = parts.length - 1;
-
-    context.log('length: ', length);
-    context.log('lastIndex: ', lastIndex);
 
     // No new data fetched
     if (lastIndex === length) {
       continue;
     }
 
-    for (let i = length; i > lastIndex; i--) {
+    // Go through each part from end to front to find
+    // the delimiters. When a part contains one, push it
+    for (let i = length; i >= lastIndex; i--) {
       const log = parts[i];
       final = log.final;
 
-      context.log('i: ', i);
-      context.log.info('log');
-      context.log.info(log);
-      context.log.info('indexFailStart for: ', indexFailStart);
-      context.log.info('indexFailStop for: ', indexFailStop);
-
       if (indexFailStart === -1) {
         indexFailStart = log.content.lastIndexOf('[31m FAIL');
-        context.log.info('indexFailStat', indexFailStart);
         // Find the first FAIL starting backwards from the initially
         // found FAIL index
         if (indexFailStart !== -1) {
           logParts.push(log);
+          partNumberFailStart = log.number;
 
           const lastIndexOfFail = () =>
             log.content.lastIndexOf('\u001b[31m FAIL', indexFailStart - 1);
 
+          // Keep updating indexFailStart until the first
+          // failed test is reached
           while (lastIndexOfFail() !== -1) {
-            context.log('lastIndexOfFail');
             indexFailStart = lastIndexOfFail();
-            context.log('while indexFailStart', indexFailStart);
           }
         }
       }
@@ -130,25 +127,23 @@ export const getTravisErrorLogs = async ({
         indexFailStop = log.content.lastIndexOf(
           '\r\n\r\n\u001b[999D\u001b[K\u001b[1mTest Suites:'
         );
-        context.log.info('indexFailStop: ', indexFailStop);
-      }
 
-      if (indexFailStart !== -1 && indexFailStop !== -1) {
-        break;
+        // Only push if the log is a different one than the found start
+        // and the stop delimiter is found
+        if (partNumberFailStart !== log.number && indexFailStop !== -1) {
+          logParts.push(log);
+        }
       }
-
-      lastIndex = parts[length].number;
     }
 
-    if (final) break;
+    if (final || (indexFailStart !== -1 && indexFailStop !== -1)) break;
+
+    lastIndex = parts[length].number;
 
     sleep(3000);
   }
 
-  context.log.info(logParts);
   const errorLogs = makeErrorLog(logParts, indexFailStart, indexFailStop);
-  context.log.info('makeErrorLogs:');
-  context.log.info(errorLogs);
 
   return errorLogs;
 };
