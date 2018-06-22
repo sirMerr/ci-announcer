@@ -39,6 +39,8 @@ export const statusPrHandler = async ({
     jobId,
   });
 
+  // Build body of issue with logs, commit id and travis
+  // build url
   const body = makeIssueBody({
     errorLogs,
     sha,
@@ -47,6 +49,7 @@ export const statusPrHandler = async ({
 
   log.info(body);
 
+  // Create comment on pull request
   await github.issues.createComment({
     owner,
     repo,

@@ -1,0 +1,63 @@
+{
+  "@type": "build",
+  "@href": "/v3/build/394661277",
+  "@representation": "standard",
+  "@permissions": {
+    "read": true,
+    "cancel": true,
+    "restart": true
+  },
+  "id": 394661277,
+  "number": "8",
+  "state": "failed",
+  "duration": 28,
+  "event_type": "pull_request",
+  "previous_state": "failed",
+  "pull_request_title": "Test failing build",
+  "pull_request_number": 2,
+  "started_at": "2018-06-22T03:14:47Z",
+  "finished_at": "2018-06-22T03:15:15Z",
+  "private": false,
+  "repository": {
+    "@type": "repository",
+    "@href": "/v3/repo/19763758",
+    "@representation": "minimal",
+    "id": 19763758,
+    "name": "ci-announcer-tester",
+    "slug": "sirMerr/ci-announcer-tester"
+  },
+  "branch": {
+    "@type": "branch",
+    "@href": "/v3/repo/19763758/branch/master",
+    "@representation": "minimal",
+    "name": "master"
+  },
+  "tag": null,
+  "commit": {
+    "@type": "commit",
+    "@representation": "minimal",
+    "id": 118333383,
+    "sha": "ed27aa11553b9689f3661934bac8c1518fda6d18",
+    "ref": "refs/pull/2/merge",
+    "message": "Create fail",
+    "compare_url": "https://github.com/sirMerr/ci-announcer-tester/pull/2",
+    "committed_at": "2018-06-20T17:14:52Z"
+  },
+  "jobs": [
+    {
+      "@type": "job",
+      "@href": "/v3/job/394661278",
+      "@representation": "minimal",
+      "id": 394661278
+    }
+  ],
+  "stages": [],
+  "created_by": {
+    "@type": "user",
+    "@href": "/v3/user/379781",
+    "@representation": "minimal",
+    "id": 379781,
+    "login": "sirMerr"
+  },
+  "updated_at": "2018-06-22T03:15:15.068Z"
+}
