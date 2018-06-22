@@ -25,6 +25,7 @@
     "dotenv": "^6.0.0",
     "http": "^0.0.0",
     "probot": "^7.0.0-typescript.4",
+    "strip-ansi": "^4.0.0",
     "typescript": "^2.9.2"
   },
   "devDependencies": {
@@ -33,6 +34,7 @@
     "@types/jest": "^23.1.1",
     "@types/node": "^10.3.4",
     "@types/node-fetch": "^2.1.1",
+    "@types/strip-ansi": "^3.0.0",
     "husky": "^0.14.3",
     "jest": "^22.4.3",
     "node-fetch": "^2.1.2",
