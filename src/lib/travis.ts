@@ -143,7 +143,9 @@ export const sendMessage = ({
       }
 
       if (indexFailStop === -1) {
-        indexFailStop = log.content.lastIndexOf('[999D[K[1mTest Suites:');
+        indexFailStop = log.content.lastIndexOf(
+          '\r\n\r\n\u001b[999D\u001b[K\u001b[1mTest Suites:'
+        );
         context.log.info('indexFailStop: ', indexFailStop);
         if (indexFailStop !== -1) partNumberStop = log.number;
       }
@@ -239,18 +241,29 @@ const makeErrorLog = (
   let errorLog = '';
   const size = logs.length;
 
-  for (let i = 0; i < size; i++) {
-    const log = logs[i];
-    if (i === 0) {
-      errorLog += log.content.slice(stringStart);
-    } else if (i === size) {
-      errorLog += log.content.slice(0, stringEnd);
-    } else {
-      errorLog += log.content;
+  if (size === 1) {
+    errorLog = logs[0].content.slice(stringStart, stringEnd);
+  } else {
+    for (let i = 0; i < size; i++) {
+      const log = logs[i];
+      if (i === 0) {
+        errorLog += log.content.slice(stringStart);
+      } else if (i === size) {
+        errorLog += log.content.slice(0, stringEnd);
+      } else {
+        errorLog += log.content;
+      }
     }
   }
 
-  return stripAnsi(errorLog);
+  errorLog = stripAnsi(errorLog);
+
+  if (errorLog.length > 400) {
+    errorLog.slice(0, 400);
+    errorLog += '\n...';
+  }
+
+  return errorLog;
 };
 
 const makeIssueBody = ({
@@ -266,6 +279,6 @@ const makeIssueBody = ({
     `The [TravisCI build](${travisUrl}) failed as of ${sha}\n` +
     '<pre><code>' +
     errorLogs +
-    '</pre></code>'
+    '</code></pre>'
   );
 };
