@@ -1,21 +1,32 @@
 import * as dotenv from 'dotenv';
-import { createProbot } from 'probot';
-import { readFileSync } from 'fs';
-
-import robot from './src/robot';
-
+import { Robot } from 'probot';
+import { statusPrHandler } from './src/lib/statusPrHandler';
 // Allow use of .env
 dotenv.config();
 
-// Create Probot App
-const probot = createProbot({
-  id: Number(process.env.APP_ID),
-  secret: process.env.WEBHOOK_SECRET,
-  port: Number(process.env.APP_PORT),
-  webhookProxy: process.env.WEBHOOK_PROXY_URL,
-  cert: readFileSync('private_key.pem') as any,
-});
+// Robot will listen for failing statuses
+// and comment on the PR
+const probotPlugin = (robot: Robot) => {
+  // https://developer.github.com/v3/activity/events/types/#statusevent
+  robot.on('status', async context => {
+    const { log, payload } = context;
+    const { state } = payload;
 
-// Set up with robot listener
-probot.setup([robot]);
-probot.start();
+    log.info('Status event triggered');
+    context.log.info(context);
+
+    // Should only trigger if it's a PR AND the status is failing
+    if (
+      payload.context === 'continuous-integration/travis-ci/pr' &&
+      state === 'failure'
+    ) {
+      // Owner and Repo details
+      const { owner, repo } = await context.repo({ logger: robot.log });
+
+      // Handler which will post a comment with CI info
+      statusPrHandler({ context, owner, repo });
+    }
+  });
+};
+
+export = probotPlugin;
