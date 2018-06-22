@@ -19,13 +19,15 @@ const travisAPI = {
  * Make a request to /build
  * @param context Helpers for the GitHub webhook
  */
-export const getTravisBuildData = async (context: Context) => {
+export const getTravisBuildData = async (
+  context: Context
+): Promise<null | { [key: string]: any }> => {
   const { log, payload } = context;
   const buildId = getTravisBuildId(payload);
-
+  console.log(buildId);
   log.info('BuildId', buildId);
 
-  if (!buildId) return;
+  if (!buildId) return null;
 
   const { url, headers } = travisAPI;
   log.info('GET: ', `${url}/build/${buildId}`);
@@ -37,9 +39,9 @@ export const getTravisBuildData = async (context: Context) => {
 };
 
 /**
- * Get Build ID from context for API call to
- * Travis
- * @param context Helpers for the GitHub webhook
+ * Get Build ID from context for API call to Travis.
+ *
+ * @param payload Context payload
  */
 const getTravisBuildId = (payload: WebhookPayloadWithRepository): number => {
   const travisUrl: string = payload.target_url;

@@ -25,7 +25,13 @@ export const statusPrHandler = async ({
 
   // Get the CI build data
   const buildData = await getTravisBuildData(context);
-  const jobId = buildData.jobs[0].id;
+
+  if (null) {
+    log.error('No build data found');
+    return;
+  }
+
+  const jobId = buildData!.jobs[0].id;
 
   // Get the CI error logs formatted
   const errorLogs = await getTravisErrorLogs({
@@ -45,10 +51,8 @@ export const statusPrHandler = async ({
     owner,
     repo,
     body,
-    number: buildData.pull_request_number,
+    number: buildData!.pull_request_number,
   });
-
-  return;
 };
 
 const makeIssueBody = ({
