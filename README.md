@@ -57,7 +57,7 @@ I then began building the logger while writing my tests and determining how the 
 
 - I found that TravisCI logs has to be polled, as the job logs received from the endpoint is updated as it gets more, instead of receiving the entirety of the logs at once.
 
-- I found that I had different ways to get the logs:
+  I had different ways to get and parse the logs:
 
   1.  Poll `log_parts` until `final: true` was found or the markers were found and use `log_parts` to make the message
   2.  Poll `log_parts` until `final: true` was found and use `content` (full logs) to find the markers and make the message
@@ -65,7 +65,7 @@ I then began building the logger while writing my tests and determining how the 
 
   I decided not to use the `log.txt` option because it did not have the ANSI and Unicode, and I wanted to be able to use them in my markers in case a test had the key words by themselves or in case I'd want to add emphasis to them later. I didn't use the second one because I wanted to be able to stop polling if I had already found the markers, as to not make unecessary calls.
 
-- I used typescript with Probot, which was still somewhat in beta so there were a few definitions missing and no default generator for typescript with probot (although that wasn't too much of an issue). I do feel like I could have not used typescript, and would have saved some time.
+- I used typescript with Probot, which was still somewhat in beta so there were a few definitions missing and no default generator for TypeScript with Probot, but it did not cause a problem. Although I do feel like I could have not used typescript, and would have saved some time.
 
 ## Next steps
 
