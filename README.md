@@ -2,6 +2,10 @@
 
 > A GitHub App built with [Probot](https://github.com/probot/probot) that announces when CI fails
 
+<img width="640" alt="screen shot 2018-06-25 at 2 15 43 pm" src="https://user-images.githubusercontent.com/11183523/41867873-580f32fe-7882-11e8-87ff-2d570dd0278f.png">
+
+Demo: https://github.com/sirMerr/ci-announcer-tester/pull/3
+
 ## Setup
 
 Create a `.env` file, following the [official Probot instructions](https://probot.github.io/docs/development/#configuring-a-github-app)
@@ -22,7 +26,7 @@ npm start:watch
 
 ## Approach
 
-Firstly I decided I would be using Probot + TravisCI + Jest as my use case. I read through TravisCI and Probot docs, and set up a small probot app and testing that it worked with a Travis.
+Firstly I decided I would be using **Probot + TravisCI + Jest** as my use case. I read through TravisCI and Probot docs, and set up a small probot app and testing that it worked with a Travis.
 
 I checked what enpoints gets triggered when a TravisCI build starts, what returns the logs and found what could be a delimiter for the error logs I wanted displayed. I looked through my travis build's job logs and other public repos with:
 
@@ -30,6 +34,10 @@ I checked what enpoints gets triggered when a TravisCI build starts, what return
 2.  The enpoints: TravisCI `/build/[buildId]` -> `/job/[jobId]` Enpoint -> `job/[jobId]/log`
 
 I ended finding that every repo using Jest would have: `\u001b[31m FAIL` as a starting delimiter, `\u001b[31m` representing bold and red ANSI, (could have a few fails) and `'\r\n\r\n\u001b[999D\u001b[K\u001b[1mTest Suites:'` to indicate when it would end.
+
+<img width="338" alt="screen shot 2018-06-25 at 1 28 58 pm" src="https://user-images.githubusercontent.com/11183523/41867668-c3be261e-7881-11e8-8297-ef64ece42239.png">
+
+<img width="424" alt="screen shot 2018-06-25 at 2 12 38 pm" src="https://user-images.githubusercontent.com/11183523/41867700-d7c87bfa-7881-11e8-8c7c-add2babc3ca6.png">
 
 At this point I knew I needed to have
 
