@@ -4,6 +4,8 @@
 
 <img width="640" alt="screen shot 2018-06-25 at 2 15 43 pm" src="https://user-images.githubusercontent.com/11183523/41867873-580f32fe-7882-11e8-87ff-2d570dd0278f.png">
 
+Note: Tested to work with TravisCI and Jest tests
+
 Demo: https://github.com/sirMerr/ci-announcer-tester/pull/3
 
 ## Setup
