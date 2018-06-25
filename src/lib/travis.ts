@@ -65,18 +65,9 @@ interface LogPart {
  * for larger scale projects, it would be necessary to limit
  * the number of lines for each failed test
  *
- * @param context
  * @param jobId Travis Build Job ID
  */
-export const getTravisErrorLogs = async ({
-  context,
-  jobId,
-}: {
-  context: Context;
-  jobId: number;
-}) => {
-  context.log.info('getTravisErrorLogs');
-
+export const getTravisErrorLogs = async (jobId: number) => {
   const { url, headers } = travisAPI;
   let logParts: Array<LogPart> = [];
   let indexFailStart = -1;
@@ -125,6 +116,7 @@ export const getTravisErrorLogs = async ({
         }
       }
 
+      // Find end marker
       if (indexFailStop === -1) {
         indexFailStop = log.content.lastIndexOf(
           '\r\n\r\n\u001b[999D\u001b[K\u001b[1mTest Suites:'
@@ -137,11 +129,14 @@ export const getTravisErrorLogs = async ({
         }
       }
 
+      // Exit for loop early if the beginning and end markers were found
       if (indexFailStart !== -1 && indexFailStop !== -1) break;
     }
 
+    // Exit while loop if markers are found or there are no more logs to poll
     if (final || (indexFailStart !== -1 && indexFailStop !== -1)) break;
 
+    // Update lastIndex for the foor loop
     lastIndex = parts[length].number;
 
     // Wait until polling the api again

@@ -33,7 +33,7 @@ describe('will run travis fetches and manipulation', () => {
     // @ts-ignore
     fetch.mockImplementation(() => Promise.resolve(mockLogWithFailNotFinal));
 
-    const errorLogs = await getTravisErrorLogs({ context, jobId: 1 });
+    const errorLogs = await getTravisErrorLogs(1);
 
     expect(errorLogs).toMatchSnapshot();
   });
@@ -42,7 +42,7 @@ describe('will run travis fetches and manipulation', () => {
     // @ts-ignore
     fetch.mockImplementation(() => Promise.resolve(mockLogWithMultipleFails));
 
-    const errorLogs = await getTravisErrorLogs({ context, jobId: 1 });
+    const errorLogs = await getTravisErrorLogs(1);
 
     expect(errorLogs).toMatchSnapshot();
   });
@@ -51,7 +51,7 @@ describe('will run travis fetches and manipulation', () => {
     // @ts-ignore
     fetch.mockImplementation(() => Promise.resolve(mockLogWithNoFails));
 
-    const errorLogs = await getTravisErrorLogs({ context, jobId: 1 });
+    const errorLogs = await getTravisErrorLogs(1);
 
     expect(errorLogs).toBe('No logs found, please check your build above');
   });

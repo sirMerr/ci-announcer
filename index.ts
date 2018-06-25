@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv';
 import { Robot } from 'probot';
 import { statusPrHandler } from './src/lib/statusPrHandler';
+
 // Allow use of .env
 dotenv.config();
 

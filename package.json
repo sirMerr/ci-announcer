@@ -16,7 +16,7 @@
     "build": "tsc",
     "precommit": "pretty-quick --staged",
     "start:watch": "nodemon --exec \"npm start\" --watch src --watch index.ts --ignore build",
-    "start": "npm build && probot run ./build/index.js",
+    "start": "npm run build && probot run ./build/index.js",
     "lint": "standard --fix",
     "test": "jest && standard",
     "test:watch": "jest --watch --notify --notifyMode=change --coverage"

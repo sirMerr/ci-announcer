@@ -34,10 +34,7 @@ export const statusPrHandler = async ({
   const jobId = buildData!.jobs[0].id;
 
   // Get the CI error logs formatted
-  const errorLogs = await getTravisErrorLogs({
-    context,
-    jobId,
-  });
+  const errorLogs = await getTravisErrorLogs(jobId);
 
   // Build body of issue with logs, commit id and travis
   // build url
